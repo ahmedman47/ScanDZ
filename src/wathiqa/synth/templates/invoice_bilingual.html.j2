@@ -1,0 +1,22 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{{ css }}
+.hdr { text-align: center; margin-bottom: 4mm } .hdr .ar { text-align: center; font-size: 15pt; font-weight: 700 }
+</style></head><body>
+<div class="hdr"><div class="ar">{{ inv.seller.name }}</div><div><b>{{ inv.seller.name }}</b></div>
+  <div class="small">{{ inv.seller.address }} | NIF {{ inv.seller.nif }} | NIS {{ inv.seller.nis }} | RC {{ inv.seller.rc }} | AI {{ inv.seller.ai }}</div></div>
+<div class="row">
+  <div class="box"><div class="ar"><b>الزبون</b>: {{ inv.buyer.name }}</div><div>Client : {{ inv.buyer.name }}</div><div>NIF : {{ inv.buyer.nif }}</div></div>
+  <div class="box"><div class="ar"><b>فاتورة رقم</b> {{ inv.invoice_number }}</div>
+    <div><b>Facture N°</b> {{ inv.invoice_number }}</div>
+    {% if inv.issue_date %}<div>Date / التاريخ : {{ dt(inv.issue_date) }}</div>{% endif %}
+    <div>Paiement / الدفع : {{ inv.payment_method }}</div></div>
+</div>
+<table><thead><tr><th>Désignation / البيان</th><th class="num">Qté / الكمية</th><th class="num">P.U. HT / السعر</th><th class="num">Montant HT / المبلغ</th></tr></thead><tbody>
+{% for l in inv.lines %}<tr><td>{{ l.description }}{% if ar_desc[loop.index0] %}<div class="ar small">{{ ar_desc[loop.index0] }}</div>{% endif %}</td><td class="num">{{ qty(l.quantity) }}</td><td class="num">{{ amt(l.unit_price_ht) }}</td><td class="num">{{ amt(l.total_ht) }}</td></tr>{% endfor %}
+</tbody></table>
+<table class="totals">
+  <tr><td>Total HT / المجموع خارج الرسم</td><td class="num">{{ amt(inv.total_ht) }}</td></tr>
+  <tr><td>TVA / الرسم <bdi dir="ltr">{{ pct(inv.vat_rate) }}</bdi></td><td class="num">{{ amt(inv.vat_amount) }}</td></tr>
+  {% if inv.timbre %}<tr><td>Timbre / الطابع</td><td class="num">{{ amt(inv.timbre) }}</td></tr>{% endif %}
+  <tr class="grand"><td>Total TTC / المجموع</td><td class="num">{{ amt(inv.total_ttc) }} {{ unit }}</td></tr>
+</table>
+</body></html>
