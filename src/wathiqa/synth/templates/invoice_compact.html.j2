@@ -1,0 +1,30 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{{ css }}
+body { font-size: 9pt }
+.box { border: none; padding: 0 }
+th { background: #fff; border-width: 0 0 1px 0 }
+td { border-width: 0 0 1px 0; padding: 1mm 2mm }
+.totals td { border-width: 0 }
+.totals tr.grand td { background: #fff; border-top: 2px solid #000 }
+.title { font-size: 16pt; text-align: center }
+</style></head><body>
+<div class="row">
+  <div class="box"><b>Client</b><br>{{ inv.buyer.name }}<br>{{ inv.buyer.address }}<br>NIF : {{ inv.buyer.nif }}</div>
+</div>
+<div class="title">FACTURE</div>
+<div class="meta">N° {{ inv.invoice_number }}<br>
+  {% if inv.issue_date %}Date : {{ dt(inv.issue_date) }}<br>{% endif %}
+  {% if inv.due_date %}Échéance : {{ dt(inv.due_date) }}<br>{% endif %}
+  Mode de paiement : {{ inv.payment_method }}</div>
+<table><thead><tr><th>Désignation</th><th class="num">Qté</th><th class="num">P.U. HT</th><th class="num">Montant HT</th></tr></thead><tbody>
+{% for l in inv.lines %}<tr><td>{{ l.description }}</td><td class="num">{{ qty(l.quantity) }}</td><td class="num">{{ amt(l.unit_price_ht) }}</td><td class="num">{{ amt(l.total_ht) }}</td></tr>{% endfor %}
+</tbody></table>
+<table class="totals">
+  <tr><td>Total HT</td><td class="num">{{ amt(inv.total_ht) }}</td></tr>
+  <tr><td>TVA {{ pct(inv.vat_rate) }}</td><td class="num">{{ amt(inv.vat_amount) }}</td></tr>
+  {% if inv.timbre %}<tr><td>Droit de timbre</td><td class="num">{{ amt(inv.timbre) }}</td></tr>{% endif %}
+  <tr class="grand"><td>Total TTC</td><td class="num">{{ amt(inv.total_ttc) }} {{ unit }}</td></tr>
+</table>
+<div class="footer small">Arrêtée la présente facture à la somme de {{ amt(inv.total_ttc) }} {{ unit }}.</div>
+<div class="footer small"><span><b>{{ inv.seller.name }}</b><br>{{ inv.seller.address }}<br>
+    NIF : {{ inv.seller.nif }}<br>NIS : {{ inv.seller.nis }}<br>RC : {{ inv.seller.rc }}<br>AI : {{ inv.seller.ai }}</span></div>
+</body></html>

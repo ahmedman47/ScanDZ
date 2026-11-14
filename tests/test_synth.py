@@ -104,3 +104,22 @@ def test_end_to_end_files_are_written(tmp_path: Path) -> None:
     truth = json.loads((tmp_path / "inv_1_00000.json").read_text(encoding="utf-8"))
     assert truth["meta"]["injected_error"] in ERROR_KINDS
     assert (tmp_path / "inv_1_00000.png").stat().st_size > 10_000
+
+
+def test_french_templates_never_print_arabic_styles():
+    from wathiqa.synth.generate import TEMPLATES, random_style
+
+    for seed in range(300):
+        style = random_style(random.Random(seed))
+        if style.template != "bilingual":
+            assert style.numbers != "arabic", (seed, style)
+            assert style.dates != "long_ar", (seed, style)
+    assert {random_style(random.Random(s)).template for s in range(300)} == set(TEMPLATES)
+
+
+def test_dev_and_test_templates_are_disjoint_and_complete():
+    from wathiqa.synth.generate import DEV_TEMPLATES, TEMPLATES, TEST_TEMPLATES
+
+    assert not set(DEV_TEMPLATES) & set(TEST_TEMPLATES)
+    assert set(DEV_TEMPLATES) | set(TEST_TEMPLATES) == set(TEMPLATES)
+    assert TEST_TEMPLATES
