@@ -145,14 +145,33 @@ class Style:
     dates: str  # "numeric" | "long_fr" | "long_ar"
 
 
-TEMPLATES = ("fr", "bilingual")
+DEV_TEMPLATES = ("fr", "bilingual", "compact")
+TEST_TEMPLATES = ("modern",)  # never used for tuning prompts, regexes or thresholds
+TEMPLATES = DEV_TEMPLATES + TEST_TEMPLATES
+
 NUMBER_STYLES = ("space", "dots", "arabic")
 DATE_STYLES = ("numeric", "long_fr", "long_ar")
 
+# Which printed styles each template can realistically show.
+FRENCH_ONLY = {"numbers": ("space", "dots"), "dates": ("numeric", "long_fr")}
+BILINGUAL = {"numbers": NUMBER_STYLES, "dates": DATE_STYLES}
+ALLOWED = {
+    "fr": FRENCH_ONLY,
+    "compact": FRENCH_ONLY,
+    "modern": FRENCH_ONLY,
+    "bilingual": BILINGUAL,
+}
 
-def random_style(rng: random.Random, template: str | None = None) -> Style:
+
+def random_style(
+    rng: random.Random,
+    template: str | None = None,
+    pool: tuple[str, ...] = TEMPLATES,
+) -> Style:
+    name = template or rng.choice(pool)
+    allowed = ALLOWED[name]
     return Style(
-        template=template or rng.choice(TEMPLATES),
-        numbers=rng.choice(NUMBER_STYLES),
-        dates=rng.choice(DATE_STYLES),
+        template=name,
+        numbers=rng.choice(allowed["numbers"]),
+        dates=rng.choice(allowed["dates"]),
     )
