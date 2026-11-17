@@ -1,0 +1,29 @@
+{# Shared pieces. Layouts differ in structure and CSS; the words come from L. #}
+{% macro party(p, L, ids=True) %}
+<b>{{ p.name }}</b><br>{{ p.address }}
+{% if ids %}<br>{{ L.nif }} : <span class="ltr">{{ p.nif }}</span><br>{{ L.nis }} : <span class="ltr">{{ p.nis }}</span><br>{{ L.rc }} : <span class="ltr">{{ p.rc }}</span><br>{{ L.ai }} : <span class="ltr">{{ p.ai }}</span>{% else %}<br>{{ L.nif }} : <span class="ltr">{{ p.nif }}</span>{% endif %}
+{% endmacro %}
+
+{% macro meta(inv, L, dt) %}
+{{ L.number }} <span class="ltr">{{ inv.invoice_number }}</span><br>
+{% if inv.issue_date %}{{ L.date }} : <span class="ltr">{{ dt(inv.issue_date) }}</span><br>{% endif %}
+{% if inv.due_date %}{{ L.due }} : <span class="ltr">{{ dt(inv.due_date) }}</span><br>{% endif %}
+{{ L.payment }} : {{ inv.payment_method }}
+{% endmacro %}
+
+{% macro lines(inv, L, amt, qty, index=False) %}
+<table><thead><tr>{% if index %}<th class="num">#</th>{% endif %}<th>{{ L.designation }}</th><th class="num">{{ L.qty }}</th><th class="num">{{ L.unit_price }}</th><th class="num">{{ L.amount }}</th></tr></thead><tbody>
+{% for l in inv.lines %}<tr>{% if index %}<td class="num">{{ loop.index }}</td>{% endif %}<td>{{ l.description }}</td><td class="num"><span class="ltr">{{ qty(l.quantity) }}</span></td><td class="num"><span class="ltr">{{ amt(l.unit_price_ht) }}</span></td><td class="num"><span class="ltr">{{ amt(l.total_ht) }}</span></td></tr>{% endfor %}
+</tbody></table>
+{% endmacro %}
+
+{% macro totals(inv, L, amt, pct, unit) %}
+<table class="totals">
+  <tr><td>{{ L.total_ht }}</td><td class="num"><span class="ltr">{{ amt(inv.total_ht) }}</span></td></tr>
+  <tr><td>{{ L.vat }} <bdi dir="ltr">{{ pct(inv.vat_rate) }}</bdi></td><td class="num"><span class="ltr">{{ amt(inv.vat_amount) }}</span></td></tr>
+  {% if inv.timbre %}<tr><td>{{ L.timbre }}</td><td class="num"><span class="ltr">{{ amt(inv.timbre) }}</span></td></tr>{% endif %}
+  <tr class="grand"><td>{{ L.total_ttc }}</td><td class="num"><span class="ltr">{{ amt(inv.total_ttc) }}</span> {{ unit }}</td></tr>
+</table>
+{% endmacro %}
+
+{% macro words(inv, L, amt, unit) %}{{ L.words }} <span class="ltr">{{ amt(inv.total_ttc) }}</span> {{ unit }}.{% endmacro %}

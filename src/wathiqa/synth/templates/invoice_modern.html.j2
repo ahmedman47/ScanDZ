@@ -16,7 +16,7 @@ td { border: none; border-bottom: 1px solid #ccc }
     NIF : {{ inv.seller.nif }}<br>NIS : {{ inv.seller.nis }}<br>RC : {{ inv.seller.rc }}<br>AI : {{ inv.seller.ai }}</div>
   <div class="box"><b>Client</b><br>{{ inv.buyer.name }}<br>{{ inv.buyer.address }}<br>NIF : {{ inv.buyer.nif }}</div>
 </div>
-<div class="title">FACTURE</div>
+<div class="title">{{ title }}</div>
 <div class="meta">N° {{ inv.invoice_number }}<br>
   {% if inv.issue_date %}Date : {{ dt(inv.issue_date) }}<br>{% endif %}
   {% if inv.due_date %}Échéance : {{ dt(inv.due_date) }}<br>{% endif %}

@@ -13,6 +13,8 @@ NBSP = "\u00a0"
 _ARABIC_INDIC = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
 MONTHS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
              "septembre", "octobre", "novembre", "décembre"]  # fmt: skip
+MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August",
+             "September", "October", "November", "December"]  # fmt: skip
 MONTHS_AR = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت",
              "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]  # fmt: skip
 
@@ -25,6 +27,8 @@ def format_amount(value: Decimal, style: str, *, unit: str = "") -> str:
         text = f"{groups.replace(',', ' ')},{frac}"
     elif style == "dots":
         text = f"{groups.replace(',', '.')},{frac}"
+    elif style == "en":
+        text = f"{groups}.{frac}"
     elif style == "arabic":
         # A no-break space (a "common separator" in Unicode bidi rules) keeps digit groups in
         # reading order inside right-to-left text; an ordinary space would reverse them.
@@ -35,7 +39,8 @@ def format_amount(value: Decimal, style: str, *, unit: str = "") -> str:
 
 
 def format_quantity(value: Decimal, style: str) -> str:
-    text = str(int(value)) if value == value.to_integral() else f"{value:.3f}".replace(".", ",")
+    sep = "." if style == "en" else ","
+    text = str(int(value)) if value == value.to_integral() else f"{value:.3f}".replace(".", sep)
     return text.translate(_ARABIC_INDIC) if style == "arabic" else text
 
 
@@ -45,6 +50,8 @@ def format_date(value: date, style: str) -> str:
     if style == "long_fr":
         day = "1er" if value.day == 1 else str(value.day)
         return f"{day} {MONTHS_FR[value.month - 1]} {value.year}"
+    if style == "long_en":
+        return f"{value.day} {MONTHS_EN[value.month - 1]} {value.year}"
     if style == "long_ar":
         return f"{value.day} {MONTHS_AR[value.month - 1]} {value.year}".translate(_ARABIC_INDIC)
     raise ValueError(f"unknown date style: {style}")

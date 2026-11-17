@@ -8,17 +8,22 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
+from wathiqa.domain.contract import DocType
 from wathiqa.domain.normalize import parse_amount, parse_date
 from wathiqa.domain.validate import RuleConfig, validate
 from wathiqa.synth.cli import generate
 from wathiqa.synth.formatting import format_amount, format_date
 from wathiqa.synth.generate import (
+    ALLOWED,
     DATE_STYLES,
+    DEV_TEMPLATES,
     ERROR_KINDS,
     NUMBER_STYLES,
     TEMPLATES,
+    TEST_TEMPLATES,
     Style,
     inject_error,
+    label_language,
     make_invoice,
     random_style,
 )
@@ -106,20 +111,59 @@ def test_end_to_end_files_are_written(tmp_path: Path) -> None:
     assert (tmp_path / "inv_1_00000.png").stat().st_size > 10_000
 
 
-def test_french_templates_never_print_arabic_styles():
-    from wathiqa.synth.generate import TEMPLATES, random_style
-
-    for seed in range(300):
+def test_styles_fit_the_template_language() -> None:
+    for seed in range(600):
         style = random_style(random.Random(seed))
-        if style.template != "bilingual":
-            assert style.numbers != "arabic", (seed, style)
-            assert style.dates != "long_ar", (seed, style)
-    assert {random_style(random.Random(s)).template for s in range(300)} == set(TEMPLATES)
+        lang = label_language(style.template)
+        assert style.numbers in ALLOWED[lang]["numbers"], (seed, style)
+        assert style.dates in ALLOWED[lang]["dates"], (seed, style)
+        if lang == "fr":
+            assert style.numbers != "arabic" and style.dates != "long_ar"
+    assert {random_style(random.Random(s)).template for s in range(600)} == set(TEMPLATES)
 
 
-def test_dev_and_test_templates_are_disjoint_and_complete():
-    from wathiqa.synth.generate import DEV_TEMPLATES, TEMPLATES, TEST_TEMPLATES
-
+def test_dev_and_test_templates_are_disjoint_and_complete() -> None:
     assert not set(DEV_TEMPLATES) & set(TEST_TEMPLATES)
     assert set(DEV_TEMPLATES) | set(TEST_TEMPLATES) == set(TEMPLATES)
-    assert TEST_TEMPLATES
+    assert len(TEMPLATES) >= 12
+    # the held-out layouts must cover French, Arabic and bilingual documents
+    assert {label_language(t) for t in TEST_TEMPLATES} >= {"fr", "ar", "bi"}
+
+
+@pytest.mark.parametrize("lang", ["fr", "ar", "en"])
+@pytest.mark.parametrize("seed", range(60))
+def test_clean_invoices_in_every_language_validate(lang: str, seed: int) -> None:
+    assert validate(make_invoice(random.Random(seed), lang=lang), CFG) == []
+
+
+def test_arabic_documents_contain_arabic_names_and_english_ones_do_not() -> None:
+    ar = make_invoice(random.Random(2), lang="ar")
+    assert not any(c.isascii() and c.isalpha() for c in ar.seller.name or "")
+    en = make_invoice(random.Random(2), lang="en")
+    assert (en.payment_method or "") in {"Bank transfer", "Cheque", "Cash", "Bill of exchange"}
+
+
+def test_documents_vary_in_length_domain_and_type() -> None:
+    invoices = [make_invoice(random.Random(s)) for s in range(400)]
+    counts = [len(i.lines) for i in invoices]
+    assert min(counts) == 1 and max(counts) > 20
+    assert sum(c > 10 for c in counts) > 40  # long documents exist
+    assert {str(i.doc_type) for i in invoices} == {"invoice", "proforma"}
+    assert len({(i.seller.name or "").split()[-1] for i in invoices}) >= 5  # several sectors
+
+
+def test_proforma_title_is_printed() -> None:
+    seed = next(
+        s for s in range(500) if make_invoice(random.Random(s)).doc_type == DocType.PROFORMA
+    )
+    html = render_html(make_invoice(random.Random(seed)), Style("en", "en", "numeric"))
+    assert "PROFORMA INVOICE" in html
+
+
+def test_hostile_text_cannot_break_out_in_any_template() -> None:
+    evil = make_invoice(random.Random(5)).model_copy(
+        update={"invoice_number": "<script>alert(1)</script>"}
+    )
+    for template in TEMPLATES:
+        style = random_style(random.Random(1), template=template)
+        assert "<script>alert(1)</script>" not in render_html(evil, style)

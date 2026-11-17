@@ -1,0 +1,16 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><style>{{ css }}
+body { direction: rtl; text-align: right }
+th { text-align: right } td.num, th.num { text-align: left }
+.totals { margin-left: 0; margin-right: auto }
+</style></head><body>
+{% import "_macros.j2" as m %}
+<div class="row">
+  <div class="box"><small>{{ L.seller }}</small><br>{{ m.party(inv.seller, L) }}</div>
+  <div class="box"><small>{{ L.buyer }}</small><br>{{ m.party(inv.buyer, L, ids=False) }}</div>
+</div>
+<div class="title">{{ title }}</div>
+<div class="meta">{{ m.meta(inv, L, dt) }}</div>
+{{ m.lines(inv, L, amt, qty) }}
+{{ m.totals(inv, L, amt, pct, unit) }}
+<div class="footer small">{{ m.words(inv, L, amt, unit) }}</div>
+</body></html>

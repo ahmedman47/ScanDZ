@@ -7,11 +7,13 @@ Format follows Gebru et al. (2021), "Datasheets for Datasets".
 - Created by: Ahmed Mansouri, for the Wathiqa project. No funding or third-party requirement.
 
 ## Composition
-- Each instance: one invoice as PDF and PNG (200 DPI), plus a JSON file with the ground-truth invoice and metadata (seed, index, template, number style, date style, injected error).
-- Counts (fill from the command in the guide): documents per template, per number style, per date style.
-- Language mix: French-only templates (`fr`, `compact`, `modern`) and one bilingual Arabic/French template (`bilingual`).
+- Each instance: one document as PDF and PNG (200 DPI), plus a JSON file with the ground-truth invoice and metadata (seed, index, template, number style, date style, domain, document type, number of lines, injected error).
+- 12 layouts. Label languages: French (7 layouts), bilingual French/Arabic (2), Arabic only (2), English (1). Counts per template, language, domain, document type: fill from the command in the guide.
+- Business domains: IT, office supplies, construction, food, medical, services. Product names exist in French, Arabic and English.
+- Length: 1 to 35 product lines. About a quarter of documents have more than 10 lines and run onto a second PDF page (the PNG is one tall image).
+- Document types: invoices (about 90%) and pro-forma invoices (about 10%).
 - About 5% of documents contain one injected error (wrong total, wrong VAT, or missing date). The error kind is stored in the metadata.
-- Degraded copies at levels light, medium, heavy (see `degrade.py`), with the same ground truth.
+- Degraded copies at levels light, medium, heavy (`degrade.py`) share the same ground truth.
 - Splits: see `docs/splits.md`.
 
 ## Collection process
@@ -26,13 +28,24 @@ Format follows Gebru et al. (2021), "Datasheets for Datasets".
 ## Uses and limits
 - Intended: development, ablations and stress tests of the pipeline.
 - Not intended: claims about real Algerian documents. Synthetic data is cleaner and less varied than reality; systems score higher on it.
-- Known limits: a handful of templates; Latin-script French dominates; line-item tables are simple; no handwriting, stamps or logos.
+- Known limits: 12 layouts; quantities are whole numbers; one VAT rate per document; no discounts, no handwriting, no logos; wrapped descriptions come from a short list of phrases; English is a minority and has one layout; Arabic company names are invented transliterations.
 
 ## Distribution and maintenance
 - Not distributed in the repository (`data/` is git-ignored). The generator and seeds are the distribution.
 - Licence for generated data: CC BY 4.0 if published.
-- Version: v0. Dataset hash: fill after the first frozen generation (`certutil -hashfile` per file, or a script).
+- Version: v0. Dataset hash: fill after the first frozen generation.
 - Maintainer: Ahmed Mansouri. Changes are listed below.
 
 ## Change log
 - v0: initial draft.
+- v0.1: 12 layouts, 6 domains, Arabic and English content, lengths 1 to 35, pro-forma documents.
+
+
+
+
+- Development set (seed 11, 500 documents): fr 67, compact 68, banner 66, dense 61, ticket 57 (French labels, 319 in total); bilingual 60; ar 67 (Arabic only); en 54 (English).
+- Domains: office 93, medical 90, food 85, it 84, construction 78, services 70.
+- Document types: invoice 445, proforma 55.
+- Number styles: space 207, dots 209, arabic-indic 30, english 54. Date styles: numeric 250, long_fr 173, long_ar 50, long_en 27.
+- Documents with more than 10 lines: 137 (27%). Injected errors: 27 (5.4%).
+- Test set (seed 12, 150 documents) uses only the held-out layouts modern, sidebar, stamp and ar_modern; counts are not inspected until the final evaluation.

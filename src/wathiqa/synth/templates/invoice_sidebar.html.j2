@@ -1,0 +1,17 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{{ css }}
+body { padding: 0; display: flex; align-items: stretch }
+aside { width: 62mm; background: #e9edf2; padding: 14mm 6mm; font-size: 9pt; line-height: 1.5 }
+aside h4 { margin: 6mm 0 1mm; font-size: 8pt; text-transform: uppercase; color: #46566b }
+main { flex: 1; padding: 14mm 10mm }
+.title { margin-top: 0; color: #22324a } th { background: #22324a; color: #fff; border: none }
+td { border: none; border-bottom: 1px solid #d4dae2 }
+.totals { width: 100% } .totals td { border-bottom: 1px solid #d4dae2 } .totals tr.grand td { background: #e9edf2 }
+.footer { border: none }
+</style></head><body>
+{% import "_macros.j2" as m %}
+<aside><h4>{{ L.seller }}</h4>{{ m.party(inv.seller, L) }}<h4>{{ L.buyer }}</h4>{{ m.party(inv.buyer, L, ids=False) }}<h4>Référence</h4>{{ m.meta(inv, L, dt) }}</aside>
+<main><div class="title">{{ title }}</div>
+{{ m.lines(inv, L, amt, qty) }}
+{{ m.totals(inv, L, amt, pct, unit) }}
+<div class="footer small">{{ m.words(inv, L, amt, unit) }}</div></main>
+</body></html>

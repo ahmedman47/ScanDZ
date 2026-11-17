@@ -1,0 +1,20 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{{ css }}
+.band { background: #0b5d3b; color: #fff; margin: -16mm -15mm 8mm; padding: 10mm 15mm; line-height: 1.55 }
+.band .n { font-size: 20pt; font-weight: 700 }
+.cols { display: flex; justify-content: space-between; gap: 10mm; align-items: flex-start }
+.box { border: 1px solid #0b5d3b; flex: 0 0 85mm }
+.title { color: #0b5d3b; margin: 0 0 2mm; text-align: right } .meta { text-align: right }
+th { background: #0b5d3b; color: #fff; border: none } td { border: none; border-bottom: 1px solid #cfe3d9 }
+tbody tr:nth-child(even) td { background: #f1f8f4 }
+.totals td { background: none !important; border-bottom: 1px solid #cfe3d9 } .totals tr.grand td { color: #0b5d3b; font-size: 12pt }
+.footer { border: none }
+</style></head><body>
+{% import "_macros.j2" as m %}
+<div class="band"><div class="n">{{ inv.seller.name }}</div>{{ inv.seller.address }}<br>
+NIF : {{ inv.seller.nif }} &nbsp; NIS : {{ inv.seller.nis }} &nbsp; RC : {{ inv.seller.rc }} &nbsp; AI : {{ inv.seller.ai }}</div>
+<div class="cols"><div class="box"><small>{{ L.buyer }}</small><br>{{ m.party(inv.buyer, L, ids=False) }}</div>
+<div><div class="title">{{ title }}</div><div class="meta">{{ m.meta(inv, L, dt) }}</div></div></div>
+{{ m.lines(inv, L, amt, qty) }}
+{{ m.totals(inv, L, amt, pct, unit) }}
+<div class="footer small">{{ m.words(inv, L, amt, unit) }}</div>
+</body></html>

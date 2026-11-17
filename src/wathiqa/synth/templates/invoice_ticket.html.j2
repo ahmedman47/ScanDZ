@@ -1,0 +1,19 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{{ css }}
+body { width: 86mm; margin: 0 auto; padding: 8mm 4mm; font-family: "Courier New", monospace; font-size: 9pt; min-height: 0 }
+.c { text-align: center } .sep { border-top: 1px dashed #000; margin: 3mm 0 }
+.ln { display: flex; justify-content: space-between } .ln.big { font-weight: 700; font-size: 11pt }
+</style></head><body>
+<div class="c"><b>{{ inv.seller.name }}</b><br>{{ inv.seller.address }}<br>
+NIF {{ inv.seller.nif }}<br>NIS {{ inv.seller.nis }}<br>RC {{ inv.seller.rc }}<br>AI {{ inv.seller.ai }}</div>
+<div class="sep"></div>
+<div class="c"><b>{{ title }}</b><br>N° {{ inv.invoice_number }}<br>{% if inv.issue_date %}{{ dt(inv.issue_date) }}<br>{% endif %}Client : {{ inv.buyer.name }}<br>NIF {{ inv.buyer.nif }}</div>
+<div class="sep"></div>
+{% for l in inv.lines %}<div>{{ l.description }}</div>
+<div class="ln"><span>{{ qty(l.quantity) }} x {{ amt(l.unit_price_ht) }}</span><span>{{ amt(l.total_ht) }}</span></div>{% endfor %}
+<div class="sep"></div>
+<div class="ln"><span>Total HT</span><span>{{ amt(inv.total_ht) }}</span></div>
+<div class="ln"><span>TVA {{ pct(inv.vat_rate) }}</span><span>{{ amt(inv.vat_amount) }}</span></div>
+{% if inv.timbre %}<div class="ln"><span>Timbre</span><span>{{ amt(inv.timbre) }}</span></div>{% endif %}
+<div class="ln big"><span>TOTAL TTC</span><span>{{ amt(inv.total_ttc) }} {{ unit }}</span></div>
+<div class="sep"></div><div class="c small">Paiement : {{ inv.payment_method }}<br>Merci de votre visite</div>
+</body></html>
