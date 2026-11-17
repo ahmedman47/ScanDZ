@@ -9,9 +9,11 @@ from pathlib import Path
 
 from wathiqa.synth.generate import (
     DEV_TEMPLATES,
+    DOMAIN_NAMES,
     ERROR_KINDS,
     TEMPLATES,
     TEST_TEMPLATES,
+    content_language,
     inject_error,
     make_invoice,
     random_style,
@@ -30,8 +32,9 @@ def generate(
     htmls: dict[str, str] = {}
     for i in range(n):
         rng = random.Random(f"{seed}-{i}")  # one independent stream per document
-        invoice = make_invoice(rng)
         style = random_style(rng, pool=pool)
+        domain = rng.choice(DOMAIN_NAMES)
+        invoice = make_invoice(rng, lang=content_language(style.template), domain=domain)
         error = rng.choice(ERROR_KINDS) if rng.random() < error_rate else None
         if error:
             invoice = inject_error(invoice, error)
@@ -40,7 +43,15 @@ def generate(
         write_ground_truth(
             out / f"{name}.json",
             invoice,
-            {"seed": seed, "index": i, "injected_error": error, **asdict(style)},
+            {
+                "seed": seed,
+                "index": i,
+                "injected_error": error,
+                "domain": domain,
+                "doc_type": str(invoice.doc_type),
+                "n_lines": len(invoice.lines),
+                **asdict(style),
+            },
         )
     html_to_files(htmls, out)
 
@@ -48,10 +59,13 @@ def generate(
 def main() -> None:
     ap = argparse.ArgumentParser(description="Generate synthetic invoices with ground truth")
     ap.add_argument("--n", type=int, default=20)
-    ap.add_argument("--split", choices=("dev", "test"), default="dev",
-                    help="dev uses DEV_TEMPLATES, test uses TEST_TEMPLATES only")
-    ap.add_argument("--out", type=Path, default=None,
-                    help="default: data/synthetic/<split>")
+    ap.add_argument(
+        "--split",
+        choices=("dev", "test"),
+        default="dev",
+        help="dev uses DEV_TEMPLATES, test uses TEST_TEMPLATES only",
+    )
+    ap.add_argument("--out", type=Path, default=None, help="default: data/synthetic/<split>")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--error-rate", type=float, default=0.05)
     args = ap.parse_args()

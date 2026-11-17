@@ -15,3 +15,6 @@ td.num, th.num { text-align: right; white-space: nowrap }
 .ar { direction: rtl; unicode-bidi: isolate; text-align: right }
 .small { font-size: 8.5pt; color: #333 }
 .footer { margin-top: 14mm; border-top: 1px solid #444; padding-top: 3mm }
+tr { page-break-inside: avoid }
+thead { display: table-header-group }
+.ltr { direction: ltr; unicode-bidi: isolate }

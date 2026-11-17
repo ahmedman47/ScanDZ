@@ -1,0 +1,23 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><style>{{ css }}
+body { direction: rtl; text-align: right }
+.band { background: #7a1f3d; color: #fff; margin: -16mm -15mm 8mm; padding: 10mm 15mm; line-height: 1.6 }
+.band .n { font-size: 19pt; font-weight: 700 }
+.cols { display: flex; justify-content: space-between; gap: 10mm }
+.cols > div { flex: 1; line-height: 1.6 }
+.title { color: #7a1f3d; margin: 4mm 0 }
+th { background: #7a1f3d; color: #fff; border: none; text-align: right }
+td { border: none; border-bottom: 1px solid #ddd } td.num, th.num { text-align: left }
+tbody tr:nth-child(even) td { background: #f7eef1 }
+.totals { margin-left: 0; margin-right: auto } .totals td { background: none !important }
+.totals tr.grand td { background: #7a1f3d !important; color: #fff }
+</style></head><body>
+{% import "_macros.j2" as m %}
+<div class="band"><div class="n">{{ inv.seller.name }}</div>{{ inv.seller.address }}<br>
+{{ L.nif }} : <span class="ltr">{{ inv.seller.nif }}</span> | {{ L.nis }} : <span class="ltr">{{ inv.seller.nis }}</span><br>
+{{ L.rc }} : <span class="ltr">{{ inv.seller.rc }}</span> | {{ L.ai }} : <span class="ltr">{{ inv.seller.ai }}</span></div>
+<div class="cols"><div><small>{{ L.buyer }}</small><br>{{ m.party(inv.buyer, L, ids=False) }}</div>
+<div><div class="title">{{ title }}</div>{{ m.meta(inv, L, dt) }}</div></div>
+{{ m.lines(inv, L, amt, qty) }}
+{{ m.totals(inv, L, amt, pct, unit) }}
+<div class="footer small" style="border:none">{{ m.words(inv, L, amt, unit) }}</div>
+</body></html>

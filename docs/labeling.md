@@ -24,11 +24,20 @@ Rule zero: **label what is printed on the page, not what it should be.**
 - Subtotal rows, discount rows, shipping notes and "Report" rows are not lines.
 - Multi-page documents: lines from all pages; totals from the last page.
 
+## Layout traps (from the 12 layouts)
+
+- A `#` column holds row numbers. Ignore it; it is not a quantity.
+- Receipts print `qty x unit price` under the description: still one line with its quantity and unit price.
+- A round stamp may cover text. If a digit is not readable, the field is null.
+- The words "Arrêtée la présente facture..." repeat the total in digits. It is the same `total_ttc`, not a second total.
+- Arabic labels differ from French ones (for example "رقم التعريف الجبائي" is the NIF, "السجل التجاري" is the RC, "رقم المادة" is the AI). Label by meaning.
+- Arabic-Indic digits (٠١٢...) are converted to ordinary digits in the label.
+
 ## Hard cases
 
 - **Illegible or cut-off text:** leave the field null. Never guess, never infer from other fields.
 - **Printed total is arithmetically wrong:** label the printed value anyway. The validator must catch it.
-- **Not an invoice** (proforma, delivery note): set `document_type`, still extract what exists.
+- **Not a plain invoice** (pro-forma, delivery note): set `doc_type` (the title decides: "FACTURE PROFORMA" means `proforma`) and still extract what exists.
 - **Amount formats:** decide by the printed format only (see ADR on amount parsing).
 
 ## Process
@@ -41,3 +50,4 @@ Rule zero: **label what is printed on the page, not what it should be.**
 ## History
 
 - v1: first draft.
+- v2: layout traps and Arabic label mapping.

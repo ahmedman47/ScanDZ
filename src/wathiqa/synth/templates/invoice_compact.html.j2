@@ -10,7 +10,7 @@ td { border-width: 0 0 1px 0; padding: 1mm 2mm }
 <div class="row">
   <div class="box"><b>Client</b><br>{{ inv.buyer.name }}<br>{{ inv.buyer.address }}<br>NIF : {{ inv.buyer.nif }}</div>
 </div>
-<div class="title">FACTURE</div>
+<div class="title">{{ title }}</div>
 <div class="meta">N° {{ inv.invoice_number }}<br>
   {% if inv.issue_date %}Date : {{ dt(inv.issue_date) }}<br>{% endif %}
   {% if inv.due_date %}Échéance : {{ dt(inv.due_date) }}<br>{% endif %}

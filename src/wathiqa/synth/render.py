@@ -9,7 +9,8 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 
 from wathiqa.domain.contract import Invoice
 from wathiqa.synth.formatting import format_amount, format_date, format_quantity
-from wathiqa.synth.generate import CATALOGUE, Style
+from wathiqa.synth.generate import Style, arabic_for, label_language
+from wathiqa.synth.labels import LABELS
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 _env = Environment(
@@ -17,20 +18,24 @@ _env = Environment(
     autoescape=select_autoescape(["html", "j2"], default_for_string=True),
     undefined=StrictUndefined,
 )
-_AR_BY_FR = {fr: ar for fr, ar, _ in CATALOGUE}
 
 
 def render_html(invoice: Invoice, style: Style) -> str:
-    unit = "دج" if style.template == "bilingual" else "DA"
+    lang = label_language(style.template)
+    labels = LABELS[lang]
+    is_proforma = invoice.doc_type == "proforma"
     context = {
         "inv": invoice,
         "css": (TEMPLATE_DIR / "base.css").read_text(encoding="utf-8"),
-        "unit": unit,
+        "L": labels,
+        "lang": lang,
+        "title": labels["title_proforma" if is_proforma else "title_invoice"],
+        "unit": labels["unit"],
         "amt": lambda v: format_amount(v, style.numbers),
         "qty": lambda v: format_quantity(v, style.numbers),
         "dt": lambda v: format_date(v, style.dates),
         "pct": lambda v: f"{int(v)} %",
-        "ar_desc": [_AR_BY_FR.get(line.description or "", "") for line in invoice.lines],
+        "ar_desc": [arabic_for(line.description or "") for line in invoice.lines],
     }
     return _env.get_template(f"invoice_{style.template}.html.j2").render(**context)
 
